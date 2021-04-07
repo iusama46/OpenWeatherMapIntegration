@@ -22,7 +22,7 @@
             android:layout_marginStart="30dp"
             android:layout_marginEnd="10dp"
 
-        
+
             android:elevation="100dp"
             android:padding="10dp"
             android:src="@drawable/sun" />
@@ -33,7 +33,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_marginEnd="-6dp"
             android:layout_toStartOf="@id/lay2"
+            android:includeFontPadding="false"
+            android:lineSpacingExtra="0dp"
             android:text="81"
             android:textColor="@color/white"
             android:textSize="48sp"
@@ -44,25 +47,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-
             android:layout_centerVertical="true"
+            android:paddingBottom="20dp"
             android:layout_marginEnd="30dp"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="\u00B0f"
+                android:layout_height="10dp"
+                android:layout_gravity="top"
+
+                android:gravity="top"
+                android:text="°"
+
                 android:textColor="@color/white"
-                android:textSize="16sp"
+
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""
+                android:includeFontPadding="false"
 
+android:layout_marginTop="-2dp"
+                android:text="F"
                 android:textColor="@color/white" />
 
         </LinearLayout>
