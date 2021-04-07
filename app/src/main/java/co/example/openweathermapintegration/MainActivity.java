@@ -58,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
     TextView temp;
 
 
-    String Location_Provider = LocationManager.GPS_PROVIDER;
+
     LocationManager mLocationManager;
-    android.location.LocationListener mLocationListner;
+
     private FusedLocationProviderClient fusedLocationClient;
 
     @Override
