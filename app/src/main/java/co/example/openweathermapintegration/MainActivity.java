@@ -1,7 +1,6 @@
 package co.example.openweathermapintegration;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,11 +13,13 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -32,10 +33,10 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 
@@ -49,28 +50,38 @@ import co.example.openweathermapintegration.models.Weather;
  * Github https://github.com/iusama46
  */
 public class MainActivity extends AppCompatActivity {
-
     private static final int REQUEST_LOCATION = 1;
+    final String APP_ID = "a2ae7e5a17634c9913f38aa855dbb769";
+    final String SYMBOL = "°C";
     final long MIN_TIME = 5000;
     final float MIN_DISTANCE = 1000;
     final int REQUEST_CODE = 101;
     RelativeLayout lay;
-    TextView temp;
-
-
-
+    TextView temp, feelsTemp, minTemp, maxTemp, humidity;
+    TextView pressure, windSpeed, description, clouds;
+    ImageView tempIcon;
     LocationManager mLocationManager;
-
     private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         lay = findViewById(R.id.lay);
         lay.setVisibility(View.INVISIBLE);
         temp = findViewById(R.id.temp);
+        tempIcon = findViewById(R.id.img);
+        feelsTemp = findViewById(R.id.feels_like);
+        minTemp = findViewById(R.id.min_temp);
+        maxTemp = findViewById(R.id.max_temp);
+        humidity = findViewById(R.id.humidity);
+        pressure = findViewById(R.id.pressure);
+        windSpeed = findViewById(R.id.wind);
+        description = findViewById(R.id.description);
+        clouds = findViewById(R.id.clouds);
+
+
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
@@ -78,9 +89,8 @@ public class MainActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
 
-
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         }
 
         //fusedLocationClient.getCurrentLocation()
@@ -146,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setMessage("Getting weather");
         progressDialog.show();
 
-        String url = "http://api.openweathermap.org/data/2.5/weather?q=new%20york&appid=a2ae7e5a17634c9913f38aa855dbb769&units=imperial";
+        String url = "https://api.openweathermap.org/data/2.5/weather?q=toronto&appid=" + APP_ID + "&units=metric";
         StringRequest request = new StringRequest(url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -160,20 +170,40 @@ public class MainActivity extends AppCompatActivity {
                 DecimalFormat df = new DecimalFormat("####0");
                 temp.setText(df.format(weather.getMain().getTemp()).toString());
 
+                minTemp.setText(String.format("%s%s", weather.getMain().getTempMin(), SYMBOL));
+                maxTemp.setText(String.format("%s%s", weather.getMain().getTempMax(), SYMBOL));
+                feelsTemp.setText(String.format("%s%s", weather.getMain().getFeelsLike(), SYMBOL));
+
+
+                humidity.setText(String.format("%s%s", weather.getMain().getHumidity(), "%"));
+                description.setText(weather.getWeather().get(0).getMain());
+
+                windSpeed.setText(String.format("%s%s", weather.getWind().getSpeed(), "km/h"));
+                pressure.setText(String.format("%s%s", weather.getMain().getPressure(), "mbar"));
+                clouds.setText(String.format("%s%s", weather.getClouds().getAll(), "%"));
+
+
+                String icon = weather.getWeather().get(0).getIcon();
+                String iconUrl = "http://openweathermap.org/img/wn/" + icon + "@2x.png";
+                Picasso.get()
+                        .load(iconUrl)
+                        .placeholder(R.drawable.sun)
+                        .resize(140, 140)
+                        .into(tempIcon);
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(MainActivity.this, "Something went gone wrong", Toast.LENGTH_SHORT).show();
-
-
+                progressDialog.dismiss();
             }
         });
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(request);
 
     }
+
 
     private void OnGPS() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -191,6 +221,5 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
-
 
 }
